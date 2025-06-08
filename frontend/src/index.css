@@ -3,3 +3,23 @@
 
 @import "tailwindcss";
 
+:root {
+    --white: #EFE9F4;
+    --celeste: #5FBFF9;
+    --purple: #5863F8;
+    --black: #171d19;
+    --blue: #16BAC5;
+
+
+   
+}
+
+
+.text-white   { color: var(--white); }
+.text-celeste { color: var(--celeste); }
+.text-purple   { color: var(--purple); }
+.text-black { color: var(--black); }
+.text-blue { color: var(--blue); }
+
+.bg-black { background-color: var(--black); }
+.bg-white { background-color: var(--white); }
