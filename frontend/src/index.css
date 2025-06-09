@@ -22,4 +22,8 @@
 .text-blue { color: var(--blue); }
 
 .bg-black { background-color: var(--black); }
-.bg-white { background-color: var(--white); }
+.bg-primary { background-color: var(--white); }
+.bg-blue { background-color: var(--blue); }
+.bg-celeste { background-color: var(--celeste); }
+
+
