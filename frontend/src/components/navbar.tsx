@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
                         <Link to="/">Inicio</Link>
                     </li>
                     <li className="p-4 font-bold hover:scale-110 duration-300">
-                        <Link to="/dashboard">Panel de control</Link>
+                        <Link to="/panel">Panel de control</Link>
                     </li>
                     <li className="p-4 font-bold hover:scale-110 duration-300">
                         <Link to="/login">Acceder</Link>
