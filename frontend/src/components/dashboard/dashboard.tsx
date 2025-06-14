@@ -7,8 +7,7 @@ const Dashboard: React.FC = () => {
     return (
         <div className="bg-white h-screen p-4">
             <Panel />
-{/* 
-            <Grid /> */}
+
         </div>
     );
 };

@@ -14,7 +14,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/dashboard');
+      navigate('/panel');
     }
   }, [isLoggedIn, navigate]);
 
@@ -81,12 +81,12 @@ const Login: React.FC = () => {
               Login
             </button>
           </form>
-          <div className="mt-5 text-xs border-b border-[#002D74] py-4 text-[#002D74]">
-            <a href="#">Olvidaste tu contraseña?</a>
-          </div>
+
           <div className="mt-3 text-xs flex justify-between items-center text-[#002D74]">
             <p>No tienes una cuenta?</p>
-            <button className="py-2 px-5 bg-white border rounded-xl hover:scale-110 duration-300">
+            <button className="py-2 px-5 bg-white border rounded-xl hover:scale-110 duration-300"
+            onClick={() => navigate('/register')}
+            >
               Registra tu empresa
             </button>
           </div>

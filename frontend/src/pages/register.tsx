@@ -55,7 +55,7 @@ const RegisterCompany: React.FC = () => {
               className="p-2 rounded-xl border"
               type="text"
               name="domain"
-              placeholder="Dominio de la empresa (ej. miempresa.com)"
+              placeholder="Dominio de la empresa "
               required
             />
             <button
@@ -66,12 +66,6 @@ const RegisterCompany: React.FC = () => {
             </button>
           </form>
 
-          <button
-            className="mt-4 underline text-[#002D74] text-xs"
-            onClick={() => setUserType(null)}
-          >
-            &larr; Elegir otra opción
-          </button>
         </div>
 
         <div className="md:block hidden w-1/2">
