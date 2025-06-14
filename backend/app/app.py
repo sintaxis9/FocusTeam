@@ -23,3 +23,6 @@ def create_app():
     app.register_blueprint(task_bp, url_prefix="/api/tasks")
 
     return app
+
+app = create_app()
+
