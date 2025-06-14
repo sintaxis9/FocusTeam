@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 type UserType = 'admin' | 'empleado';
@@ -20,12 +20,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  useEffect(() => {
+    // Intentar recuperar el usuario del localStorage al iniciar
+    const storedUser = localStorage.getItem('focusteam-user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const login = (userType: UserType, email: string) => {
-    setUser({ userType, email });
+    const newUser = { userType, email };
+    setUser(newUser);
+    localStorage.setItem('focusteam-user', JSON.stringify(newUser));
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('focusteam-user');
   };
 
   const isLoggedIn = !!user;
