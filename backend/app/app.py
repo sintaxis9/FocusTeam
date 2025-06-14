@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 
 from app.routes.auth_routes import auth_bp
 from app.routes.task_routes import task_bp
+from app.routes.company_routes import company_bp
+
 
 load_dotenv()
 
@@ -21,6 +23,8 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(task_bp, url_prefix="/api/tasks")
+    app.register_blueprint(company_bp, url_prefix="/api/company")
+
 
     return app
 
