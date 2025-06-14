@@ -3,6 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
 from app.routes.auth_routes import auth_bp
 from app.routes.task_routes import task_bp
@@ -19,10 +20,17 @@ def create_app():
     CORS(app)
     JWTManager(app)
 
+    # Conexión a MongoDB (ajusta URI según tu entorno)
+    client = MongoClient(os.getenv("MONGODB_URI", "mongodb://localhost:27017"))
+    app.db = client[os.getenv("MONGODB_DBNAME", "focus_team_db")]
+
+    # Pasar referencia de la base de datos a los blueprints
+    auth_bp.db = app.db
+    task_bp.db = app.db
+
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(task_bp, url_prefix="/api/tasks")
 
     return app
 
 app = create_app()
-
