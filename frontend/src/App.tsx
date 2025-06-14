@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
 import Home from './pages/home';
 import Login from './pages/login';
+import RegisterCompany from './pages/register';
 
 import DashboardLayout from './components/dashLayout';
 import PrivateRoute from './context/privateRoute';
@@ -22,6 +23,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<RegisterCompany />} />
         <Route path='/' element={
           <PrivateRoute>
             <DashboardLayout />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 type UserType = 'admin' | 'empleado';
@@ -13,6 +13,7 @@ type AuthContextType = {
   isLoggedIn: boolean;
   login: (userType: UserType, email: string) => void;
   logout: () => void;
+  registerCompany: (companyName: string, adminEmail: string, domain: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +22,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Intentar recuperar el usuario del localStorage al iniciar
     const storedUser = localStorage.getItem('focusteam-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -37,12 +37,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('focusteam-user');
+    localStorage.removeItem('focusteam-company');
+  };
+
+  const registerCompany = (companyName: string, adminEmail: string, domain: string) => {
+    console.log(`Registrando empresa: ${companyName}, admin: ${adminEmail}, dominio: ${domain}`);
+    const newUser = { userType: 'admin' as UserType, email: adminEmail };
+    setUser(newUser);
+    localStorage.setItem('focusteam-user', JSON.stringify(newUser));
+    localStorage.setItem('focusteam-company', JSON.stringify({ companyName, domain }));
   };
 
   const isLoggedIn = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, login, logout, registerCompany }}>
       {children}
     </AuthContext.Provider>
   );

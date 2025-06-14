@@ -23,9 +23,9 @@ const Hero: React.FC = () => {
                 </p>
                 <button
                     className='bg-black w-[200px] rounded-md font-bold my-6 mx-auto py-3 text-white hover:scale-110 duration-300'
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate('/register')}
                 >
-                    Iniciar Sesión
+                    Registra tu empresa
                 </button>
             </div>
         </div>
