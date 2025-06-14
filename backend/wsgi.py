@@ -1,4 +1,3 @@
-# wsgi.py
-from app.app import create_app
+from app import app
 
-app = create_app()
+application = app
