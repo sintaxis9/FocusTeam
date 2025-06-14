@@ -1,3 +1,4 @@
-from app import app
+from app import app  # Asegúrate que `app.py` define `app = Flask(...)`
 
-application = app
+if __name__ == "__main__":
+    app.run()
