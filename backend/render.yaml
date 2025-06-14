@@ -3,7 +3,7 @@ services:
     name: focusteam-backend
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
+    startCommand: "gunicorn wsgi:app"
     envVars:
       - key: MONGO_URI
         value: mongodb+srv://focusadmin:focus1234@focusteamcluster.h1hesxr.mongodb.net/?retryWrites=true&w=majority&appName=FocusTeamCluster
