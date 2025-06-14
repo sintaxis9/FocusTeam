@@ -1,8 +1,6 @@
 
 import React from 'react';
 
-
-import { Grid } from './grid';
 import Panel from '../../pages/panel';
 
 const Dashboard: React.FC = () => {

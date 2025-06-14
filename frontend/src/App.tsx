@@ -4,6 +4,7 @@ import Home from './pages/home';
 import Login from './pages/login';
 
 import DashboardLayout from './components/dashLayout';
+import PrivateRoute from './context/privateRoute';
 
 import ControlPanel from './pages/controlPanel';
 import Employees from './pages/employees';
@@ -19,11 +20,13 @@ function App() {
     <div>
       <Navbar />
       <Routes>
-
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
-
-        <Route path='/' element={<DashboardLayout />}>
+        <Route path='/' element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }>
           <Route path='dashboard' element={<ControlPanel />} />
           <Route path='employees' element={<Employees />} />
           <Route path='task' element={<Task />} />
