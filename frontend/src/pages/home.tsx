@@ -1,6 +1,12 @@
 import React from 'react';
 
+
+
 import Hero  from '../components/hero';
+
+import Analytics from '../components/analytics';
+
+import Footer from '../components/footer';
 
 
 const Home: React.FC = () => {
@@ -8,8 +14,10 @@ const Home: React.FC = () => {
         <div>
             <Hero />
 
+            <Analytics />
 
-           
+
+            <Footer />
         </div>
 
     );

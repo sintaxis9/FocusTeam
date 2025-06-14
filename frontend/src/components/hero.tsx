@@ -1,6 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 const Hero: React.FC = () => {
+    const navigate = useNavigate(); // Hook para navegar
+
     return (
         <div className='text-black'>
             <div className='max-w-[800px] mt-[-96px] w-full h-screen mx-auto text-center flex flex-col justify-center'>
@@ -14,12 +18,14 @@ const Hero: React.FC = () => {
                     <p className='md:text-5xl sm:text-4xl text-xl font-bold py-4'>
                       
                     </p>
-
                 </div>
                 <p className='md:text-2xl text-xl font-bold text-gray-500'>
                 </p>
-                <button className='bg-black w-[200px] rounded-md font-bold my-6 mx-auto py-3 text-white hover:scale-110 duration-300'>
-                    Registrate
+                <button
+                    className='bg-black w-[200px] rounded-md font-bold my-6 mx-auto py-3 text-white hover:scale-110 duration-300'
+                    onClick={() => navigate('/login')}
+                >
+                    Iniciar Sesión
                 </button>
             </div>
         </div>
