@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TaskForm from "../components/taskForm";
-import TaskItem from "../components/taskItem";
+import TaskList from "../components/taskList";
+import { getCompanyUsers } from "../services/companyService";
+import { useAuth } from "../context/authContext";
+import type { CompanyUser } from "../types/user";
 
-// Lista de empleados fijos
-const EMPLOYEES = [
-  { id: 1, name: "Juan Pérez" },
-  { id: 2, name: "Ana Soto" },
-  { id: 3, name: "Pedro Rojas" },
-];
-
+type Employee = { id: string; name: string };
 type Task = {
   id: number;
   title: string;
@@ -16,7 +13,7 @@ type Task = {
   startDate: string;
   endDate: string;
   completed: boolean;
-  employees: number[]; // IDs de empleados
+  employees: string[];
 };
 
 const Task: React.FC = () => {
@@ -26,8 +23,56 @@ const Task: React.FC = () => {
     description: "",
     startDate: "",
     endDate: "",
-    employees: [] as number[],
+    employees: [] as string[],
   });
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const { user } = useAuth();
+  const [domain, setDomain] = useState<string>("");
+
+  // Obtener el dominio solo cuando cambia el usuario
+  useEffect(() => {
+    if (!user?.empresa_id) return;
+    fetch(`https://focusteam-backend.onrender.com/api/company/domain`)
+      .then(res => res.json())
+      .then(data => {
+        const myCompany = data.companies.find((c: any) => c._id === user.empresa_id);
+        setDomain(myCompany?.domain || "");
+      });
+  }, [user]);
+
+  // Obtener empleados reales cuando se tenga el dominio
+  useEffect(() => {
+    if (!domain) return;
+    getCompanyUsers(domain)
+      .then(data => {
+        setEmployees(
+          data.users.map((u: CompanyUser) => ({
+            id: u._id,
+            name: u.email,
+          }))
+        );
+      });
+  }, [domain]);
+
+  // Definir una clave única para cada empresa
+  const LOCAL_TASKS_KEY = domain ? `tasks_${domain}` : "tasks_temp";
+
+  // Cargar tareas de localStorage solo cuando tengas el dominio
+  useEffect(() => {
+    if (!domain) return;
+    const storedTasks = localStorage.getItem(LOCAL_TASKS_KEY);
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+    } else {
+      setTasks([]);
+    }
+  }, [domain]);
+
+  // Guardar tareas cada vez que cambien o cambie el dominio
+  useEffect(() => {
+    if (!domain) return;
+    localStorage.setItem(LOCAL_TASKS_KEY, JSON.stringify(tasks));
+  }, [tasks, domain]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,7 +80,7 @@ const Task: React.FC = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleEmployeesChange = (id: number, checked: boolean) => {
+  const handleEmployeesChange = (id: string, checked: boolean) => {
     setForm(prevForm => ({
       ...prevForm,
       employees: checked
@@ -43,7 +88,6 @@ const Task: React.FC = () => {
         : prevForm.employees.filter(empId => empId !== id)
     }));
   };
-
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,22 +124,17 @@ const Task: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">Tareas</h2>
       <TaskForm
         form={form}
-        employees={EMPLOYEES}
+        employees={employees}
         onChange={handleChange}
         onEmployeesChange={handleEmployeesChange}
         onSubmit={handleAddTask}
       />
-
-      <ul>
-        {tasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            employees={EMPLOYEES}
-            onToggle={toggleCompleted}
-          />
-        ))}
-      </ul>
+      {/* Listado de todas las tareas */}
+      <TaskList
+        tasks={tasks}
+        employees={employees}
+        onToggle={toggleCompleted}
+      />
     </div>
   );
 };

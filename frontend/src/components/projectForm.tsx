@@ -2,12 +2,10 @@ import React from "react";
 
 type Employee = { id: string; name: string };
 
-type TaskFormProps = {
+type ProjectFormProps = {
   form: {
-    title: string;
+    name: string;
     description: string;
-    startDate: string;
-    endDate: string;
     employees: string[];
   };
   employees: Employee[];
@@ -16,7 +14,7 @@ type TaskFormProps = {
   onSubmit: (e: React.FormEvent) => void;
 };
 
-const TaskForm: React.FC<TaskFormProps> = ({
+const ProjectForm: React.FC<ProjectFormProps> = ({
   form,
   employees,
   onChange,
@@ -25,10 +23,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
 }) => (
   <form onSubmit={onSubmit} className="mb-6 grid gap-2">
     <input
-      name="title"
+      name="name"
       type="text"
-      placeholder="Título"
-      value={form.title}
+      placeholder="Nombre del proyecto"
+      value={form.name}
       onChange={onChange}
       className="border p-2 rounded"
       required
@@ -40,24 +38,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
       onChange={onChange}
       className="border p-2 rounded"
     />
-    <div className="flex gap-2">
-      <input
-        name="startDate"
-        type="date"
-        value={form.startDate}
-        onChange={onChange}
-        className="border p-2 rounded w-1/2"
-        required
-      />
-      <input
-        name="endDate"
-        type="date"
-        value={form.endDate}
-        onChange={onChange}
-        className="border p-2 rounded w-1/2"
-        required
-      />
-    </div>
     <div>
       <label className="block mb-1 font-medium">Empleados asignados:</label>
       <div className="flex flex-col gap-1">
@@ -76,11 +56,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
     </div>
     <button
       type="submit"
-      className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+      className="bg-green-600 text-white px-4 py-2 rounded mt-2"
     >
-      Agregar tarea
+      Crear proyecto
     </button>
   </form>
 );
 
-export default TaskForm;
+export default ProjectForm;
