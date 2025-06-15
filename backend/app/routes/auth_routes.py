@@ -1,23 +1,30 @@
 from flask import Blueprint, request, jsonify
-from app.models.user_model import create_user, get_user_by_email
-from app.utils.password_hash import hash_password
+from app.models.user_model import get_user_by_email
+from app.utils.password_hash import verify_password
 
-auth_bp = Blueprint('auth_bp', __name__)
+auth_bp = Blueprint("auth_bp", __name__)
 
-@auth_bp.route('/register', methods=['POST'])
-def register():
+@auth_bp.route("/login", methods=["POST"])
+def login():
     data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
 
-    if not data or not data.get("email") or not data.get("password"):
-        return jsonify({"message": "Faltan campos obligatorios"}), 400
+    if not email or not password:
+        return jsonify({"message": "Email y contraseña son obligatorios"}), 400
 
-    if get_user_by_email(data["email"]):
-        return jsonify({"message": "El usuario ya existe"}), 409
+    user = get_user_by_email(email)
+    if not user:
+        return jsonify({"message": "Usuario no encontrado"}), 404
 
-    hashed_pw = hash_password(data["password"])
-    user_id = create_user({
-        "email": data["email"],
-        "password": hashed_pw
-    })
+    if not verify_password(password, user["password"]):
+        return jsonify({"message": "Contraseña incorrecta"}), 401
 
-    return jsonify({"message": "Usuario creado", "user_id": user_id}), 201
+    user_info = {
+        "id": str(user["_id"]),
+        "email": user["email"],
+        "rol": user["rol"],
+        "empresa_id": str(user["empresa_id"]),
+    }
+
+    return jsonify({"message": "Login exitoso", "user": user_info}), 200
