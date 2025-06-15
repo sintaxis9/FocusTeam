@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models.user_model import create_user, get_user_by_email
-from app.models.company_model import get_company_by_domain, get_users_by_company_id, get_all_companies
+from app.models.company_model import get_company_by_domain, get_users_by_company_id, get_all_companies, create_company
 from app.utils.password_hash import hash_password
 
 company_bp = Blueprint('company_bp', __name__)
@@ -123,3 +123,75 @@ def get_company_info_by_domain(domain):
     except Exception as e:
         return jsonify({"error": "Error interno", "detail": str(e)}), 500
 
+
+@company_bp.route("/register", methods=["POST"])
+def register_company_with_admin():
+    data = request.get_json()
+    name = data.get("name")
+    domain = data.get("domain")
+    admin_email = data.get("admin_email")
+    password = data.get("password")
+
+    if not all([name, domain, admin_email, password]):
+        return jsonify({"message": "Faltan campos obligatorios"}), 400
+
+    if get_company_by_domain(domain):
+        return jsonify({"message": "El dominio ya está registrado"}), 409
+
+    if get_user_by_email(admin_email):
+        return jsonify({"message": "El correo de admin ya está en uso"}), 409
+
+    company_id = create_company(name, domain)
+
+    admin_data = {
+        "email": admin_email,
+        "password": hash_password(password),
+        "empresa_id": company_id,
+        "rol": "admin"
+    }
+    user_id = create_user(admin_data)
+
+    return jsonify({
+        "message": "Empresa y admin creados exitosamente",
+        "company_id": company_id,
+        "admin_id": user_id
+    }), 201
+
+
+@company_bp.route("/domain/<domain>/add-employee", methods=['POST'])
+def add_employee_to_company(domain):
+    data = request.get_json()
+    admin_email = data.get("admin_email")
+    employee_email = data.get("email")
+    password = data.get("password")
+
+    if not all([admin_email, employee_email, password]):
+        return jsonify({"message": "Faltan campos obligatorios"}), 400
+
+    admin = get_user_by_email(admin_email)
+    if not admin or admin.get("rol") != "admin":
+        return jsonify({"message": "Admin no válido"}), 404
+
+    if domain != admin_email.split("@")[-1]:
+        return jsonify({"message": "Dominio del admin no coincide con la URL"}), 400
+
+    if get_user_by_email(employee_email):
+        return jsonify({"message": "El usuario ya existe"}), 409
+
+    # Validación dominio
+    if employee_email.split("@")[-1] != domain:
+        return jsonify({"message": "El correo del empleado no coincide con el dominio de la empresa"}), 400
+
+    company = get_company_by_domain(domain)
+    if not company:
+        return jsonify({"message": "Empresa no encontrada"}), 404
+
+    employee_data = {
+        "email": employee_email,
+        "password": hash_password(password),
+        "empresa_id": company["_id"],
+        "rol": "empleado"
+    }
+
+    user_id = create_user(employee_data)
+    return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
