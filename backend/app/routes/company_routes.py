@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models.user_model import create_user, get_user_by_email, get_users_by_empresa_id
-from app.models.company_model import get_company_by_id, get_company_by_domain
+from app.models.user_model import create_user, get_user_by_email
+from app.models.company_model import get_company_by_id
 from app.utils.password_hash import hash_password
 
 company_bp = Blueprint('company_bp', __name__)
@@ -38,25 +38,30 @@ def add_employee():
     user_id = create_user(empleado_data)
     return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
 
-@company_bp.route('/by-domain/<string:domain>', methods=['GET'])
-def get_company_by_domain_route(domain):
+
+@company_bp.route('/full-info/by-domain/<domain>', methods=['GET'])
+def get_company_and_employees(domain):
     company = get_company_by_domain(domain)
     if not company:
         return jsonify({"message": "Empresa no encontrada"}), 404
-    return jsonify({
-        "id": str(company["_id"]),
-        "name": company["name"],
-        "domain": company["domain"]
-    }), 200
 
-@company_bp.route('/<empresa_id>/employees', methods=['GET'])
-def get_employees_by_empresa_id(empresa_id):
-    empleados = get_users_by_empresa_id(empresa_id, role="empleado")
-    return jsonify([
-        {
-            "id": str(emp["_id"]),
-            "email": emp["email"],
-            "rol": emp["rol"]
-        }
-        for emp in empleados
-    ]), 200
+    empresa_id = company["_id"]
+    employees = get_users_by_company(str(empresa_id))
+
+    empleados_filtrados = []
+    for e in employees:
+        empleados_filtrados.append({
+            "email": e.get("email"),
+            "rol": e.get("rol"),
+            "created_at": e.get("created_at")
+        })
+
+    return jsonify({
+        "company": {
+            "_id": str(empresa_id),
+            "name": company.get("name"),
+            "domain": company.get("domain"),
+            "created_at": company.get("created_at")
+        },
+        "employees": empleados_filtrados
+    }), 200

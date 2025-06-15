@@ -13,5 +13,6 @@ def create_company(name, domain):
 def get_company_by_domain(domain):
     return db.companies.find_one({"domain": domain})
 
+
 def get_company_by_id(company_id):
     return db.companies.find_one({"_id": company_id})

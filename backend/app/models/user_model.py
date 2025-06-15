@@ -18,3 +18,5 @@ def get_user_by_email(email):
 
 def get_users_by_company(empresa_id):
     return list(db.users.find({"empresa_id": ObjectId(empresa_id)}))
+
+
