@@ -158,40 +158,41 @@ def register_company_with_admin():
     }), 201
 
 
-@company_bp.route("/domain/<domain>/add-employee", methods=['POST'])
+@company_bp.route("/domain/<domain>/add-employee", methods=["POST"])
 def add_employee_to_company(domain):
     data = request.get_json()
+
     admin_email = data.get("admin_email")
     employee_email = data.get("email")
     password = data.get("password")
 
-    if not all([admin_email, employee_email, password]):
+    if not admin_email or not employee_email or not password:
         return jsonify({"message": "Faltan campos obligatorios"}), 400
 
     admin = get_user_by_email(admin_email)
     if not admin or admin.get("rol") != "admin":
         return jsonify({"message": "Admin no válido"}), 404
 
-    if domain != admin_email.split("@")[-1]:
+    dominio_admin = admin_email.split("@")[-1].split(".")[0]
+
+    if dominio_admin != domain:
         return jsonify({"message": "Dominio del admin no coincide con la URL"}), 400
+
+    dominio_empleado = employee_email.split("@")[-1].split(".")[0]
+
+    if dominio_empleado != domain:
+        return jsonify({"message": "El correo del empleado debe tener el dominio de la empresa"}), 400
 
     if get_user_by_email(employee_email):
         return jsonify({"message": "El usuario ya existe"}), 409
 
-    # Validación dominio
-    if employee_email.split("@")[-1] != domain:
-        return jsonify({"message": "El correo del empleado no coincide con el dominio de la empresa"}), 400
-
-    company = get_company_by_domain(domain)
-    if not company:
-        return jsonify({"message": "Empresa no encontrada"}), 404
-
-    employee_data = {
+    empleado_data = {
         "email": employee_email,
         "password": hash_password(password),
-        "empresa_id": company["_id"],
+        "empresa_id": admin.get("empresa_id"),
         "rol": "empleado"
     }
 
-    user_id = create_user(employee_data)
+    user_id = create_user(empleado_data)
     return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
+
