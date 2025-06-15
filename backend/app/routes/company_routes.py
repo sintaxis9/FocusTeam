@@ -1,41 +1,39 @@
 from flask import Blueprint, request, jsonify
-from app.models.company_model import create_company, get_company_by_domain
 from app.models.user_model import create_user, get_user_by_email
+from app.models.company_model import get_company_by_id
 from app.utils.password_hash import hash_password
 
 company_bp = Blueprint('company_bp', __name__)
 
-@company_bp.route('/register', methods=['POST'])
-def register_company():
+@company_bp.route('/add-employee', methods=['POST'])
+def add_employee():
     data = request.get_json()
 
-    nombre_empresa = data.get("nombre_empresa")
-    dominio = data.get("dominio")  # Ej: "company1"
-    email = data.get("email")      # Ej: "admin@company1.cl"
+    admin_email = data.get("admin_email")
+    employee_email = data.get("email")
     password = data.get("password")
 
-    if not all([nombre_empresa, dominio, email, password]):
+    if not admin_email or not employee_email or not password:
         return jsonify({"message": "Faltan campos obligatorios"}), 400
 
-    if get_company_by_domain(dominio):
-        return jsonify({"message": "El dominio ya está registrado"}), 409
+    admin = get_user_by_email(admin_email)
+    if not admin or admin.get("rol") != "admin":
+        return jsonify({"message": "Admin no válido"}), 404
 
-    if not email.endswith(f"@{dominio}.cl"):
-        return jsonify({"message": "El correo debe usar el dominio ingresado (ej: admin@company1.cl)"}), 400
+    dominio_empresa = admin_email.split("@")[-1]
+    dominio_empleado = employee_email.split("@")[-1]
+    if dominio_empleado != dominio_empresa:
+        return jsonify({"message": "El correo del empleado debe tener el dominio de la empresa"}), 400
 
-    if get_user_by_email(email):
-        return jsonify({"message": "El correo ya está registrado como usuario"}), 409
+    if get_user_by_email(employee_email):
+        return jsonify({"message": "El usuario ya existe"}), 409
 
-    # Crear empresa
-    empresa_id = create_company(nombre_empresa, dominio)
+    empleado_data = {
+        "email": employee_email,
+        "password": hash_password(password),
+        "empresa_id": admin.get("empresa_id"),
+        "rol": "empleado"
+    }
 
-    # Crear usuario administrador
-    hashed_pw = hash_password(password)
-    admin_id = create_user({
-        "email": email,
-        "password": hashed_pw,
-        "rol": "admin",
-        "empresa_id": empresa_id
-    })
-
-    return jsonify({"message": "Empresa y administrador creados", "empresa_id": empresa_id, "admin_id": admin_id}), 201
+    user_id = create_user(empleado_data)
+    return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
