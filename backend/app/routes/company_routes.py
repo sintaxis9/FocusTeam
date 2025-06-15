@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models.user_model import create_user, get_user_by_email
-from app.models.company_model import get_company_by_domain, get_employees_by_company_id
+from app.models.company_model import get_company_by_domain, get_users_by_company_id
 from app.utils.password_hash import hash_password
 
 company_bp = Blueprint('company_bp', __name__)
@@ -49,13 +49,14 @@ def get_company_full_info_by_domain(domain):
         if not company_id:
             return jsonify({"error": "ID de empresa inválido"}), 400
 
-        employees = get_employees_by_company_id(company_id)
+        users = get_users_by_company_id(company_id)
 
-        for emp in employees:
-            emp["_id"] = str(emp["_id"])
-            emp.pop("password", None)
-            emp.pop("created_at", None)
-            emp["empresa_id"] = str(emp["empresa_id"])
+        for user in users:
+            user["_id"] = str(user["_id"])
+            user.pop("password", None)
+            user.pop("created_at", None)
+            user["empresa_id"] = str(user["empresa_id"])
+
 
         # Limpiar empresa
         company["_id"] = str(company["_id"])
@@ -63,7 +64,7 @@ def get_company_full_info_by_domain(domain):
 
         return jsonify({
             "company": company,
-            "employees": employees
+            "users": users
         }), 200
 
     except Exception as e:

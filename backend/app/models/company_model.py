@@ -17,8 +17,7 @@ def get_company_by_domain(domain):
 def get_company_by_id(company_id):
     return db.companies.find_one({"_id": company_id})
 
-def get_employees_by_company_id(company_id):
+def get_users_by_company_id(company_id):
     return list(db.users.find({
-        "empresa_id": ObjectId(company_id),
-        "rol": "empleado"
+        "empresa_id": ObjectId(company_id)
     }))
