@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import loginImage from '../assets/loginImage.jpg';
 
 const RegisterCompany: React.FC = () => {
-  const [userType, setUserType] = useState<'empresa' | null>(null);
+
+
+
   const { registerCompany, isLoggedIn } = useAuth();
   const navigate = useNavigate();
 

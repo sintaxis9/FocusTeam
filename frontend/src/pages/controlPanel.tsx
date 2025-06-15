@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Dashboard from '../components/dashboard/dashboard';
-import Sidebar  from '../components/sidebar/sidebar';
+
 
 const ControlPanel: React.FC = () => {
   return (
