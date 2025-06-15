@@ -1,9 +1,24 @@
 from flask import Blueprint, request, jsonify
 from app.models.user_model import create_user, get_user_by_email
-from app.models.company_model import get_company_by_domain, get_users_by_company_id
+from app.models.company_model import get_company_by_domain, get_users_by_company_id, get_all_companies
 from app.utils.password_hash import hash_password
 
 company_bp = Blueprint('company_bp', __name__)
+
+
+@company_bp.route("/domain", methods=["GET"])
+def get_all_companies_route():
+    try:
+        companies = get_all_companies()
+        for c in companies:
+            c["_id"] = str(c["_id"])
+            c.pop("created_at", None)
+
+        return jsonify({"companies": companies}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "detail": str(e)}), 500
+
 
 @company_bp.route('/add-employee', methods=['POST'])
 def add_employee():
@@ -69,3 +84,42 @@ def get_company_full_info_by_domain(domain):
 
     except Exception as e:
         return jsonify({"error": "Error interno", "detail": str(e)}), 500
+
+
+@company_bp.route("/domain/<domain>/users", methods=["GET"])
+def get_company_users_by_domain(domain):
+    try:
+        company = get_company_by_domain(domain)
+        if not company:
+            return jsonify({"error": "Empresa no encontrada"}), 404
+
+        company_id = company.get("_id")
+        users = get_users_by_company_id(company_id)
+
+        for user in users:
+            user["_id"] = str(user["_id"])
+            user["empresa_id"] = str(user["empresa_id"])
+            user.pop("password", None)
+            user.pop("created_at", None)
+
+        return jsonify({"users": users}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "detail": str(e)}), 500
+    
+
+@company_bp.route("/domain/<domain>/info", methods=["GET"])
+def get_company_info_by_domain(domain):
+    try:
+        company = get_company_by_domain(domain)
+        if not company:
+            return jsonify({"error": "Empresa no encontrada"}), 404
+
+        company["_id"] = str(company["_id"])
+        company.pop("created_at", None)
+
+        return jsonify({"company": company}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "detail": str(e)}), 500
+

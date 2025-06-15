@@ -21,3 +21,6 @@ def get_users_by_company_id(company_id):
     return list(db.users.find({
         "empresa_id": ObjectId(company_id)
     }))
+
+def get_all_companies():
+    return list(db.companies.find())
