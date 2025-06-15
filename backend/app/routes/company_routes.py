@@ -38,8 +38,6 @@ def add_employee():
     user_id = create_user(empleado_data)
     return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
 
-
-
 @company_bp.route("/domain/<domain>/full-info", methods=["GET"])
 def get_company_full_info_by_domain(domain):
     try:
@@ -59,7 +57,7 @@ def get_company_full_info_by_domain(domain):
             emp.pop("created_at", None)
             emp["empresa_id"] = str(emp["empresa_id"])
 
-        # Limpiar company
+        # Limpiar empresa
         company["_id"] = str(company["_id"])
         company.pop("created_at", None)
 
