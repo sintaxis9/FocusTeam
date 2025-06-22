@@ -21,7 +21,7 @@ def create_task():
         return jsonify({"message": "Faltan campos obligatorios"}), 400
 
     empresa_id = str(admin.get("empresa_id"))
-    asignados_ids = data.get("asignados", [])  
+    asignados_ids = data.get("asignados", []) or []
 
     empleados = get_users_by_company(empresa_id)
     ids_empleados = {str(emp["_id"]) for emp in empleados if emp.get("rol") == "empleado"}
@@ -30,8 +30,12 @@ def create_task():
         if u_id not in ids_empleados:
             return jsonify({"message": f"Usuario {u_id} no pertenece a tu empresa"}), 400
 
+    if str(admin["_id"]) not in asignados_ids:
+        asignados_ids.append(str(admin["_id"]))
+
     data["empresa_id"] = empresa_id
     data["asignados"] = asignados_ids
+
     tarea_id = crear_tarea(data)
     return jsonify({"message": "Tarea creada", "id": tarea_id}), 201
 
