@@ -1,9 +1,9 @@
 import React from "react";
-import TaskItem from "./taskItem"; // asegúrate de que el path sea correcto
+import TaskItem from "./taskItem";
 
-type Employee = { id: string; name: string };
+type Employee = { id: string; name: string; rol: string };
 type Task = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   startDate: string;
@@ -15,10 +15,18 @@ type Task = {
 type TaskListProps = {
   tasks: Task[];
   employees: Employee[];
-  onToggle: (id: number) => void;
+  onToggle: (id: string) => void;
+  isAdmin: boolean;
+  currentUserId: string;
 };
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, employees, onToggle }) => (
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  employees,
+  onToggle,
+  isAdmin,
+  currentUserId
+}) => (
   <div className="mt-8">
     <h3 className="text-xl font-semibold mb-2">Tareas registradas</h3>
     {tasks.length === 0 ? (
@@ -31,6 +39,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, employees, onToggle }) => (
             task={task}
             employees={employees}
             onToggle={onToggle}
+            isAdmin={isAdmin}
+            currentUserId={currentUserId}
           />
         ))}
       </ul>

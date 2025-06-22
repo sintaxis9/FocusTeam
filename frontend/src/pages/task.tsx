@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import TaskForm from "../components/taskForm";
 import TaskList from "../components/taskList";
-import { getCompanyUsers } from "../services/companyService";
+import { getCompanyUsers, createTask, getTasksByUser, getTasksByCompany } from "../services/companyService";
 import { useAuth } from "../context/authContext";
 import type { CompanyUser } from "../types/user";
 
-type Employee = { id: string; name: string };
+type Employee = { id: string; name: string; rol: string };
 type Task = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   startDate: string;
@@ -26,10 +26,14 @@ const Task: React.FC = () => {
     employees: [] as string[],
   });
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employeesLoaded, setEmployeesLoaded] = useState(false);
   const { user } = useAuth();
   const [domain, setDomain] = useState<string>("");
 
-  // Obtener el dominio solo cuando cambia el usuario
+  const isAdmin: boolean = user?.userType === "admin";
+  const userId = user?.id ?? "";
+
+  // Obtener el dominio de la empresa
   useEffect(() => {
     if (!user?.empresa_id) return;
     fetch(`https://focusteam-backend.onrender.com/api/company/domain`)
@@ -49,31 +53,60 @@ const Task: React.FC = () => {
           data.users.map((u: CompanyUser) => ({
             id: u._id,
             name: u.email,
+            rol: u.rol,
           }))
         );
+        setEmployeesLoaded(true);
       });
   }, [domain]);
 
-  // Definir una clave única para cada empresa
-  const LOCAL_TASKS_KEY = domain ? `tasks_${domain}` : "tasks_temp";
-
-  // Cargar tareas de localStorage solo cuando tengas el dominio
+  // Cargar tareas según el rol del usuario
   useEffect(() => {
-    if (!domain) return;
-    const storedTasks = localStorage.getItem(LOCAL_TASKS_KEY);
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
+    if (!employeesLoaded) return;
+    if (!user) return;
+
+    if (isAdmin) {
+      // Admin: obtiene todas las tareas de la empresa por dominio
+      getTasksByCompany(domain)
+        .then(data => {
+          setTasks(
+            data.tareas.map((t: any) => ({
+              id: t._id,
+              title: t.titulo,
+              description: t.descripcion,
+              startDate: t.fecha_inicio,
+              endDate: t.fecha_final,
+              completed: t.estado === "completada",
+              employees: t.asignados || [],
+            }))
+          );
+        })
+        .catch(error => {
+          alert(error.message || "No se pudieron cargar las tareas");
+        });
     } else {
-      setTasks([]);
+      // Empleado: solo sus tareas
+      getTasksByUser(user.email)
+        .then(data => {
+          setTasks(
+            data.tareas.map((t: any) => ({
+              id: t._id,
+              title: t.titulo,
+              description: t.descripcion,
+              startDate: t.fecha_inicio,
+              endDate: t.fecha_final,
+              completed: t.estado === "completada",
+              employees: t.asignados || [],
+            }))
+          );
+        })
+        .catch(error => {
+          alert(error.message || "No se pudieron cargar las tareas");
+        });
     }
-  }, [domain]);
+  }, [employeesLoaded, user, domain, isAdmin]);
 
-  // Guardar tareas cada vez que cambien o cambie el dominio
-  useEffect(() => {
-    if (!domain) return;
-    localStorage.setItem(LOCAL_TASKS_KEY, JSON.stringify(tasks));
-  }, [tasks, domain]);
-
+  // Manejadores del formulario
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -89,51 +122,90 @@ const Task: React.FC = () => {
     }));
   };
 
-  const handleAddTask = (e: React.FormEvent) => {
+  // Crear tarea (SOLO admin)
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.startDate || !form.endDate) return;
-    const newTask: Task = {
-      id: Date.now(),
-      title: form.title,
-      description: form.description,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      completed: false,
-      employees: form.employees,
-    };
-    setTasks([...tasks, newTask]);
-    setForm({
-      title: "",
-      description: "",
-      startDate: "",
-      endDate: "",
-      employees: [],
-    });
+    if (!user || !user.email) {
+      alert("No se encontró el usuario.");
+      return;
+    }
+    if (!form.title.trim() || !form.startDate || !form.endDate || form.employees.length === 0) return;
+    try {
+      await createTask({
+        adminEmail: user.email,
+        titulo: form.title,
+        descripcion: form.description,
+        fecha_inicio: form.startDate,
+        fecha_final: form.endDate,
+        estado: "pendiente",
+        asignados: form.employees,
+      });
+      setForm({
+        title: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        employees: [],
+      });
+      alert("Tarea creada correctamente");
+      // Vuelve a cargar las tareas después de crear una
+      if (isAdmin) {
+        getTasksByCompany(domain)
+          .then(data => {
+            setTasks(
+              data.tareas.map((t: any) => ({
+                id: t._id,
+                title: t.titulo,
+                description: t.descripcion,
+                startDate: t.fecha_inicio,
+                endDate: t.fecha_final,
+                completed: t.estado === "completada",
+                employees: t.asignados || [],
+              }))
+            );
+          });
+      } else {
+        getTasksByUser(user.email)
+          .then(data => {
+            setTasks(
+              data.tareas.map((t: any) => ({
+                id: t._id,
+                title: t.titulo,
+                description: t.descripcion,
+                startDate: t.fecha_inicio,
+                endDate: t.fecha_final,
+                completed: t.estado === "completada",
+                employees: t.asignados || [],
+              }))
+            );
+          });
+      }
+    } catch (error: any) {
+      alert(error.message || "Error creando tarea");
+    }
   };
 
-  const toggleCompleted = (id: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
+  // Filtrado de tareas: ahora no es necesario si el backend retorna lo correcto
+  const visibleTasks = tasks;
 
   return (
     <div className="max-w-lg mx-auto my-8 p-6 bg-white rounded-xl shadow">
       <h2 className="text-2xl font-bold mb-4">Tareas</h2>
-      <TaskForm
-        form={form}
-        employees={employees}
-        onChange={handleChange}
-        onEmployeesChange={handleEmployeesChange}
-        onSubmit={handleAddTask}
-      />
-      {/* Listado de todas las tareas */}
+      {isAdmin && (
+        <TaskForm
+          form={form}
+          employees={employees.filter(emp => emp.rol === "empleado")}
+          onChange={handleChange}
+          onEmployeesChange={handleEmployeesChange}
+          onSubmit={handleAddTask}
+        />
+      )}
       <TaskList
-        tasks={tasks}
+        tasks={visibleTasks}
         employees={employees}
-        onToggle={toggleCompleted}
+        onToggle={() => {}} // Si tienes lógica de completado ponla aquí
+        isAdmin={isAdmin}
+        currentUserId={userId}
       />
     </div>
   );

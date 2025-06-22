@@ -1,6 +1,6 @@
 import React from "react";
 
-type Employee = { id: string; name: string };
+type Employee = { id: string; name: string; rol: string };
 
 type TaskFormProps = {
   form: {
