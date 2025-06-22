@@ -36,7 +36,6 @@ def create_task():
             if u_id not in ids_empleados:
                 return jsonify({"message": f"Usuario {u_id} no pertenece a tu empresa"}), 400
 
-        # Incluimos automáticamente al admin si no está
         if str(admin["_id"]) not in asignados_ids:
             asignados_ids.append(str(admin["_id"]))
 
@@ -48,7 +47,6 @@ def create_task():
 
     except Exception as e:
         return jsonify({"error": "Error interno", "detail": str(e)}), 500
-
 
 @task_bp.route('/by-user', methods=['POST'])
 def get_tasks_by_user():
@@ -63,12 +61,11 @@ def get_tasks_by_user():
         if not user:
             return jsonify({"message": "Usuario no encontrado"}), 404
 
-        tareas = obtener_tareas_para_usuario(user["_id"])  # aquí es ObjectId
+        tareas = obtener_tareas_para_usuario(user["_id"])
         return jsonify({"tareas": tareas}), 200
 
     except Exception as e:
         return jsonify({"error": "Error interno", "detail": str(e)}), 500
-
 
 @task_bp.route('/company/domain/<domain>/tasks', methods=['GET'])
 def get_tasks_by_company(domain):
