@@ -73,7 +73,6 @@ def get_company_full_info_by_domain(domain):
             user["empresa_id"] = str(user["empresa_id"])
 
 
-        # Limpiar empresa
         company["_id"] = str(company["_id"])
         company.pop("created_at", None)
 
@@ -142,7 +141,6 @@ def register_company_with_admin():
         return jsonify({"message": "El correo de admin ya está en uso"}), 409
 
     company_id = create_company(name, domain)
-
     admin_data = {
         "email": admin_email,
         "password": hash_password(password),
@@ -150,18 +148,15 @@ def register_company_with_admin():
         "rol": "admin"
     }
     user_id = create_user(admin_data)
-
     return jsonify({
         "message": "Empresa y admin creados exitosamente",
         "company_id": company_id,
         "admin_id": user_id
     }), 201
 
-
 @company_bp.route("/domain/<domain>/add-employee", methods=["POST"])
 def add_employee_to_company(domain):
     data = request.get_json()
-
     admin_email = data.get("admin_email")
     employee_email = data.get("email")
     password = data.get("password")
@@ -174,15 +169,12 @@ def add_employee_to_company(domain):
         return jsonify({"message": "Admin no válido"}), 404
 
     dominio_admin = admin_email.split("@")[-1].split(".")[0]
-
     if dominio_admin != domain:
         return jsonify({"message": "Dominio del admin no coincide con la URL"}), 400
 
     dominio_empleado = employee_email.split("@")[-1].split(".")[0]
-
     if dominio_empleado != domain:
         return jsonify({"message": "El correo del empleado debe tener el dominio de la empresa"}), 400
-
     if get_user_by_email(employee_email):
         return jsonify({"message": "El usuario ya existe"}), 409
 
@@ -192,7 +184,6 @@ def add_employee_to_company(domain):
         "empresa_id": admin.get("empresa_id"),
         "rol": "empleado"
     }
-
     user_id = create_user(empleado_data)
     return jsonify({"message": "Empleado creado", "user_id": user_id}), 201
 

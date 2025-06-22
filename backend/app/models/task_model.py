@@ -10,15 +10,18 @@ def crear_tarea(data):
         "fecha_final": data["fecha_final"],
         "descripcion": data["descripcion"],
         "estado": data["estado"],
-        "empresa_id": ObjectId(data["empresa_id"]),  # NUEVO CAMPO
+        "empresa_id": ObjectId(data["empresa_id"]),
+        "asignados": [ObjectId(u) for u in data.get("asignados", [])],  
         "creado_en": datetime.utcnow()
     }
     result = db.tasks.insert_one(tarea)
     return str(result.inserted_id)
 
-def obtener_tareas_por_empresa(empresa_id):
-    tareas = list(db.tasks.find({"empresa_id": ObjectId(empresa_id)}))
+def obtener_tareas_para_usuario(user_id):
+    """Devuelve solo las tareas que le han sido asignadas a un usuario."""
+    tareas = list(db.tasks.find({"asignados": ObjectId(user_id)}))
     for t in tareas:
         t["_id"] = str(t["_id"])
         t["empresa_id"] = str(t["empresa_id"])
+        t.pop("asignados", None)
     return tareas

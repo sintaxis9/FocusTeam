@@ -1,7 +1,6 @@
-# task_routes.py
 from flask import Blueprint, request, jsonify
-from app.models.task_model import crear_tarea, obtener_tareas_por_empresa
-from app.models.user_model import get_user_by_email
+from app.models.task_model import crear_tarea, obtener_tareas_para_usuario
+from app.models.user_model import get_user_by_email, get_users_by_company
 
 task_bp = Blueprint('task_bp', __name__)
 
@@ -21,9 +20,21 @@ def create_task():
     if not all(k in data for k in campos_requeridos):
         return jsonify({"message": "Faltan campos obligatorios"}), 400
 
-    data["empresa_id"] = str(admin.get("empresa_id"))  
+    empresa_id = str(admin.get("empresa_id"))
+    asignados_ids = data.get("asignados", [])  
+
+    empleados = get_users_by_company(empresa_id)
+    ids_empleados = {str(emp["_id"]) for emp in empleados if emp.get("rol") == "empleado"}
+
+    for u_id in asignados_ids:
+        if u_id not in ids_empleados:
+            return jsonify({"message": f"Usuario {u_id} no pertenece a tu empresa"}), 400
+
+    data["empresa_id"] = empresa_id
+    data["asignados"] = asignados_ids
     tarea_id = crear_tarea(data)
     return jsonify({"message": "Tarea creada", "id": tarea_id}), 201
+
 
 @task_bp.route('/by-user', methods=['POST'])
 def get_tasks_by_user():
@@ -37,7 +48,5 @@ def get_tasks_by_user():
     if not user:
         return jsonify({"message": "Usuario no encontrado"}), 404
 
-    empresa_id = str(user.get("empresa_id"))
-    tareas = obtener_tareas_por_empresa(empresa_id)
-
+    tareas = obtener_tareas_para_usuario(user["_id"])
     return jsonify({"tareas": tareas}), 200
