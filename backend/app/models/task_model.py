@@ -16,18 +16,27 @@ def crear_tarea(data):
     result = db.tasks.insert_one(tarea)
     return str(result.inserted_id)
 
+
 def obtener_tareas_para_usuario(user_id):
     """Devuelve solo las tareas que le han sido asignadas a un usuario específico."""
-    tareas = list(db.tasks.find({"asignados": ObjectId(user_id)}))
+    if isinstance(user_id, str):
+        user_id = ObjectId(user_id)
+
+    tareas = list(db.tasks.find({"asignados": user_id}))
     for t in tareas:
         t["_id"] = str(t["_id"])
         t["empresa_id"] = str(t["empresa_id"])
+        t["asignados"] = [str(u) for u in t.get("asignados", [])]
     return tareas
 
+
 def obtener_tareas_con_info_por_empresa(empresa_id):
-    """Devuelve todas las tareas de una empresa con emails de empleados asignados y admin creador."""
+    """Devuelve todas las tareas de una empresa, mostrando emails de asignados y admin creador."""
+    if isinstance(empresa_id, str):
+        empresa_id = ObjectId(empresa_id)
+
     pipeline = [
-        {"$match": {"empresa_id": ObjectId(empresa_id)}},
+        {"$match": {"empresa_id": empresa_id}},
         {"$lookup": {
             "from": "users",
             "localField": "asignados",
@@ -65,5 +74,4 @@ def obtener_tareas_con_info_por_empresa(empresa_id):
 
         t["asignados_emails"] = empleados_emails
         t["admin_email"] = admin_email
-
     return tareas
