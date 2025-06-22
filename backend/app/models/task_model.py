@@ -16,11 +16,54 @@ def crear_tarea(data):
     result = db.tasks.insert_one(tarea)
     return str(result.inserted_id)
 
-
 def obtener_tareas_para_usuario(user_id):
-    """Devuelve solo las tareas que le han sido asignadas a un usuario específico (empleado o admin)."""
+    """Devuelve solo las tareas que le han sido asignadas a un usuario específico."""
     tareas = list(db.tasks.find({"asignados": ObjectId(user_id)}))
     for t in tareas:
         t["_id"] = str(t["_id"])
         t["empresa_id"] = str(t["empresa_id"])
+    return tareas
+
+def obtener_tareas_con_info_por_empresa(empresa_id):
+    """Devuelve todas las tareas de una empresa con emails de empleados asignados y admin creador."""
+    pipeline = [
+        {"$match": {"empresa_id": ObjectId(empresa_id)}},
+        {"$lookup": {
+            "from": "users",
+            "localField": "asignados",
+            "foreignField": "_id",
+            "as": "empleados"
+        }},
+        {"$lookup": {
+            "from": "users",
+            "let": {"empresa_id": "$empresa_id"},
+            "pipeline": [
+                {"$match": {
+                    "$expr": {"$eq": ["$empresa_id", "$$empresa_id"]},
+                    "rol": "admin"
+                }}
+            ],
+            "as": "admins_empresa"
+        }}
+    ]
+
+    tareas = list(db.tasks.aggregate(pipeline))
+    for t in tareas:
+        t["_id"] = str(t["_id"])
+        t["empresa_id"] = str(t["empresa_id"])
+
+        empleados_emails = [emp.get("email") for emp in t.get("empleados", [])]
+
+        admin_email = None
+        for admin in t.get("admins_empresa", []):
+            if admin.get("rol") == "admin":
+                admin_email = admin.get("email")
+                break
+
+        t.pop("empleados", None)
+        t.pop("admins_empresa", None)
+
+        t["asignados_emails"] = empleados_emails
+        t["admin_email"] = admin_email
+
     return tareas

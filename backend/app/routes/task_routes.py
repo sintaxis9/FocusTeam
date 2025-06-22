@@ -1,6 +1,11 @@
 from flask import Blueprint, request, jsonify
-from app.models.task_model import crear_tarea, obtener_tareas_para_usuario
+from app.models.task_model import (
+    crear_tarea,
+    obtener_tareas_para_usuario,
+    obtener_tareas_con_info_por_empresa,
+)
 from app.models.user_model import get_user_by_email, get_users_by_company
+from app.models.company_model import get_company_by_domain
 
 task_bp = Blueprint('task_bp', __name__)
 
@@ -39,7 +44,6 @@ def create_task():
     tarea_id = crear_tarea(data)
     return jsonify({"message": "Tarea creada", "id": tarea_id}), 201
 
-
 @task_bp.route('/by-user', methods=['POST'])
 def get_tasks_by_user():
     data = request.get_json()
@@ -53,4 +57,14 @@ def get_tasks_by_user():
         return jsonify({"message": "Usuario no encontrado"}), 404
 
     tareas = obtener_tareas_para_usuario(user["_id"])
+    return jsonify({"tareas": tareas}), 200
+
+@task_bp.route('/company/domain/<domain>/tasks', methods=['GET'])
+def get_tasks_by_company(domain):
+    company = get_company_by_domain(domain)
+    if not company:
+        return jsonify({"message": "Empresa no encontrada"}), 404
+
+    empresa_id = company["_id"]
+    tareas = obtener_tareas_con_info_por_empresa(empresa_id)
     return jsonify({"tareas": tareas}), 200
