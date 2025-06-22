@@ -23,8 +23,8 @@ Desde la página principal, los usuarios pueden:
 
 El inicio de sesión solicita:
 
-- Correo electrónico (ej: `admin@empresax.cl`)
-- Contraseña
+- Correo electrónico (ej: `admin@empresay.cl`)
+- Contraseña: `adminy123`
 
 El sistema identifica la empresa automáticamente a partir del **dominio del correo electrónico** (por ejemplo, `empresax` en `admin@empresax.cl`).
 
