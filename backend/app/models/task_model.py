@@ -57,9 +57,18 @@ def obtener_tareas_con_info_por_empresa(empresa_id):
     ]
 
     tareas = list(db.tasks.aggregate(pipeline))
+
     for t in tareas:
         t["_id"] = str(t["_id"])
         t["empresa_id"] = str(t["empresa_id"])
+
+        for emp in t.get("empleados", []):
+            emp["_id"] = str(emp["_id"])
+            emp["empresa_id"] = str(emp["empresa_id"])
+
+        for admin in t.get("admins_empresa", []):
+            admin["_id"] = str(admin["_id"])
+            admin["empresa_id"] = str(admin["empresa_id"])
 
         empleados_emails = [emp.get("email") for emp in t.get("empleados", [])]
 
@@ -74,4 +83,6 @@ def obtener_tareas_con_info_por_empresa(empresa_id):
 
         t["asignados_emails"] = empleados_emails
         t["admin_email"] = admin_email
+
     return tareas
+
