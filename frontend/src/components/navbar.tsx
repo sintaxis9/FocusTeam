@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiMenu, HiX } from "react-icons/hi";
+import NotFound from "../pages/notFound";
 
 const links = [
   { to: "/", label: "Inicio" },

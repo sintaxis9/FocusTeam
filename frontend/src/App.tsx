@@ -15,6 +15,7 @@ import Reports from './pages/reports';
 import Finance from './pages/finance';
 import Support from './pages/support';
 import Panel from './pages/panel';
+import NotFound from "./pages/notFound";
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
           <Route path='support' element={<Support />} />
           <Route path='panel' element={<Panel />} />
         </Route>
+
+        <Route path="*" element={<NotFound />} /> 
       </Routes>
     </div>
   );
