@@ -21,6 +21,8 @@ const variants = {
 
 const Login: React.FC = () => {
   const { login, isLoggedIn } = useAuth();
+  const [email, setEmail] = useState("admin@empresax.cl");      // prellenado
+  const [password, setPassword] = useState("hola123");          // prellenado
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -41,10 +43,6 @@ const Login: React.FC = () => {
     setError(null);
     setSuccess(null);
     setLoading(true);
-
-    const form = e.currentTarget;
-    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
     try {
       await login(email, password);
@@ -100,6 +98,8 @@ const Login: React.FC = () => {
                   placeholder="Correo"
                   autoComplete="email"
                   required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                 />
                 <motion.input
                   whileFocus={{ borderColor: "#6366f1", scale: 1.02 }}
@@ -109,6 +109,8 @@ const Login: React.FC = () => {
                   placeholder="Contraseña"
                   autoComplete="current-password"
                   required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                 />
                 <motion.button
                   type="submit"
