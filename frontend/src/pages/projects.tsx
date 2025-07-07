@@ -23,10 +23,11 @@ const Project: React.FC = () => {
     employees: [] as string[],
   });
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const { user } = useAuth();
   const [domain, setDomain] = useState<string>("");
 
-  // 1. Obtener el dominio al cargar
+  // Obtener el dominio al cargar
   useEffect(() => {
     if (!user?.empresa_id) return;
     fetch(`https://focusteam-backend.onrender.com/api/company/domain`)
@@ -37,7 +38,7 @@ const Project: React.FC = () => {
       });
   }, [user]);
 
-  // 2. Obtener empleados cuando tengas el dominio
+  // Obtener empleados cuando tengas el dominio
   useEffect(() => {
     if (!domain) return;
     getCompanyUsers(domain)
@@ -51,17 +52,17 @@ const Project: React.FC = () => {
       });
   }, [domain]);
 
-  // 3. Definir clave única por empresa
+  // Definir clave única por empresa
   const LOCAL_PROJECTS_KEY = domain ? `projects_${domain}` : "projects_temp";
 
-  // 4. Cargar proyectos sólo cuando tengas el dominio
+  // Cargar proyectos sólo cuando tengas el dominio
   useEffect(() => {
     if (!domain) return;
     const storedProjects = localStorage.getItem(LOCAL_PROJECTS_KEY);
     setProjects(storedProjects ? JSON.parse(storedProjects) : []);
   }, [domain]);
 
-  // 5. Guardar proyectos cuando cambian o cambia el dominio
+  // Guardar proyectos cuando cambian o cambia el dominio
   useEffect(() => {
     if (!domain) return;
     localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(projects));
@@ -82,21 +83,62 @@ const Project: React.FC = () => {
     }));
   };
 
-  const handleAddProject = (e: React.FormEvent) => {
+  // AGREGAR o EDITAR
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
-    const newProject: Project = {
-      id: Date.now(),
-      name: form.name,
-      description: form.description,
-      employees: form.employees,
-    };
-    setProjects([...projects, newProject]);
+
+    if (editingId !== null) {
+      // Editar existente
+      setProjects(projects.map(p =>
+        p.id === editingId
+          ? { ...p, ...form }
+          : p
+      ));
+      setEditingId(null);
+    } else {
+      // Crear nuevo
+      const newProject: Project = {
+        id: Date.now(),
+        name: form.name,
+        description: form.description,
+        employees: form.employees,
+      };
+      setProjects([...projects, newProject]);
+    }
     setForm({
       name: "",
       description: "",
       employees: [],
     });
+  };
+
+  // ELIMINAR
+  const handleDelete = (id: number) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este proyecto?")) return;
+    setProjects(projects.filter(p => p.id !== id));
+    if (editingId === id) {
+      setEditingId(null);
+      setForm({ name: "", description: "", employees: [] });
+    }
+  };
+
+  // EDITAR: Cargar proyecto en el formulario
+  const handleEdit = (id: number) => {
+    const project = projects.find(p => p.id === id);
+    if (!project) return;
+    setForm({
+      name: project.name,
+      description: project.description,
+      employees: project.employees,
+    });
+    setEditingId(id);
+  };
+
+  // CANCELAR edición
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setForm({ name: "", description: "", employees: [] });
   };
 
   return (
@@ -120,13 +162,17 @@ const Project: React.FC = () => {
           employees={employees}
           onChange={handleChange}
           onEmployeesChange={handleEmployeesChange}
-          onSubmit={handleAddProject}
+          onSubmit={handleSubmit}
+          editingId={editingId}
+          onCancelEdit={handleCancelEdit}
         />
       </motion.div>
       {/* Listado de todos los proyectos */}
       <ProjectList
         projects={projects}
         employees={employees}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
       />
     </motion.div>
   );

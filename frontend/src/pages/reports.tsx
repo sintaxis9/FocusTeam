@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCompanyUsers } from '../services/companyService';
+import { getCompanyUsers, getTasksByCompany } from '../services/companyService';
 import { useAuth } from '../context/authContext';
 import { motion } from "framer-motion";
 import { FiUsers, FiCheckCircle, FiLayers } from "react-icons/fi";
@@ -22,12 +22,15 @@ const Reports: React.FC = () => {
       });
   }, [user]);
 
-  // 2. Cargar tareas y proyectos de localStorage para ese dominio
+  // 2. Cargar tareas desde backend y proyectos de localStorage para ese dominio
   useEffect(() => {
     if (!domain) return;
-    const storedTasks = localStorage.getItem(`tasks_${domain}`);
+    // TAREAS DESDE BACKEND
+    getTasksByCompany(domain)
+      .then(data => setTasks(data.tareas || []))
+      .catch(() => setTasks([]));
+    // PROYECTOS DESDE LOCALSTORAGE
     const storedProjects = localStorage.getItem(`projects_${domain}`);
-    setTasks(storedTasks ? JSON.parse(storedTasks) : []);
     setProjects(storedProjects ? JSON.parse(storedProjects) : []);
   }, [domain]);
 
@@ -40,19 +43,18 @@ const Reports: React.FC = () => {
 
   // Animación de las cards
   const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.14,
-      type: "spring" as const, // así lo acepta TS
-      stiffness: 60,
-      damping: 14,
-    }
-  }),
-};
-
+    hidden: { opacity: 0, y: 24 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.14,
+        type: "spring" as const,
+        stiffness: 60,
+        damping: 14,
+      }
+    }),
+  };
 
   const stats = [
     {

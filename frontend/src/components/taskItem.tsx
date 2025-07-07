@@ -32,13 +32,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, employees, onToggle, isAdmin,
         >
           <strong>{task.title}</strong> ({task.startDate} - {task.endDate})
         </span>
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={canToggle ? () => onToggle(task.id) : undefined}
-          className="ml-2"
-          disabled={!canToggle}
-        />
+
       </div>
       <div className="text-sm text-gray-600 mt-1">{task.description}</div>
       <div className="text-xs mt-1">
