@@ -1,83 +1,78 @@
-# FocusTeam
+# 🏢 FocusTeam
 
-Sistema de gestión de empresas y usuarios, pensado para organizaciones que requieren separar y administrar distintos roles dentro de una misma entidad.
-
----
-
-## FRONTEND
-
-A nivel de **Frontend**, FocusTeam ofrece una interfaz web amigable y clara, pensada para dos tipos de usuarios: **administradores** y **empleados**.
-
-### 🏠 Página de Inicio
-
-Desde la página principal, los usuarios pueden:
-
-- **Iniciar sesión** como administrador o empleado.
-- **Registrar una nueva empresa** si aún no existen en el sistema.
-
-![Home](https://cdn.discordapp.com/attachments/1221978128952332289/1383939710686330950/image.png?ex=68509dcb&is=684f4c4b&hm=9cacb031d07e107486271fe22edd01b78d3c86213d2b5449897977faa14245ed&)
+**FocusTeam** es una aplicación web para la gestión de empresas, usuarios y tareas.  
+Permite a **administradores** crear su empresa, invitar empleados y asignar tareas, mientras que los **empleados** pueden acceder a sus asignaciones desde una interfaz simple e intuitiva.
 
 ---
 
-### 🔐 Inicio de Sesión
+## 🚪 Cómo ingresar a la aplicación
 
-El inicio de sesión solicita:
+### 🔗 Frontend
+- Accede desde: **[https://focusteam-frontend.vercel.app](https://focusteam-frontend.vercel.app)**
 
-- Correo electrónico (ej: `admin@empresay.cl`)
-- Contraseña: `adminy123`
-
-El sistema identifica la empresa automáticamente a partir del **dominio del correo electrónico** (por ejemplo, `empresax` en `admin@empresax.cl`).
-
-![Login](https://cdn.discordapp.com/attachments/1221978128952332289/1383940081693364265/image.png?ex=68509e23&is=684f4ca3&hm=069ed393f7fe7fc2cbe62a6e2959e11bda4af644176f9f66edfe5b561868e728&)
+### 🧭 Desde la pantalla de inicio:
+- **Iniciar sesión** con un usuario existente.
+- **Registrar una nueva empresa** si eres un administrador nuevo que desea crear su organización y cuenta.
 
 ---
 
-### 🧑‍💼 Vista de Administrador
+## 👨‍💼 Panel de administrador
 
-Al iniciar sesión como **administrador**, el usuario accede a un panel completo que permite la gestión de su empresa. Las secciones disponibles incluyen:
+Desde el panel de control de administrador puedes:
 
-- **Panel de control general**
-- **Gestión de empleados**
-- **Gestión de tareas**
-- **Gestión de proyectos**
-- **Finanzas**
-- **Reportes y análisis**
-- **Soporte y ayuda**
+- ➕ **Crear empleados**  
+  Registra empleados usando correos con el mismo dominio de la empresa y una contraseña personalizada.
 
-![Admin Dashboard](https://cdn.discordapp.com/attachments/1221978128952332289/1383941189899911320/image.png?ex=68509f2c&is=684f4dac&hm=e2ddf58e7069dfbb4d8fd53f310bca6f552ead62701add465c081abac83351ce&)
+- 📋 **Crear tareas**  
+  Asigna tareas a uno o varios empleados de tu empresa.
 
----
-
-### 👷 Vista de Empleado
-
-Al iniciar sesión como **empleado**, el usuario accede a una interfaz simplificada enfocada en su trabajo personal. Las secciones disponibles incluyen:
-
-- **Panel de control personal** con sus tareas y proyectos asignados.
-- **Soporte y ayuda**
-
-![Empleado Dashboard](https://cdn.discordapp.com/attachments/1221978128952332289/1383941189899911320/image.png?ex=68509f2c&is=684f4dac&hm=e2ddf58e7069dfbb4d8fd53f310bca6f552ead62701add465c081abac83351ce&)
+- 🗂️ **Crear proyectos**  
+  Funcionalidad similar a las tareas (en desarrollo o por integrar).
 
 ---
 
-## BACKEND
+## 👷 Panel de empleado
 
-A nivel de **Backend** es una API backend desarrollada en Flask, que permite registrar empresas y administrar sus usuarios. Cada empresa hasta el momento de este avance puede tener:
+Desde el panel de control de empleado puedes:
 
-- Un **administrador** que la representa.
-- Múltiples **empleados** asociados a ella.
-
-El sistema asegura que cada usuario pertenezca a una empresa específica según su dominio de correo electrónico, y permite la autenticación básica por email y contraseña.
-
-Está pensado para integrarse fácilmente con cualquier frontend moderno (como React o Vue), y ya se encuentra **desplegado y funcional** para pruebas o producción.
-
-En próximos avances se integrará **seguridad** y todo el sistema de asignación de tareas, que es el objetivo principal de este proyecto.
+- ✅ **Ver tus tareas y proyectos asignados**  
+  Visualiza lo que te ha sido asignado de forma clara y rápida.
 
 ---
 
-## ⚙️ Tecnologías utilizadas (Backend)
+## 🧪 Funcionalidades que se pueden probar
 
-- **Python 3 + Flask** – Framework ligero para APIs.
-- **MongoDB Atlas** – Servicio de Base de datos en la nube.
-- **PyMongo** – Cliente MongoDB para Python.
-- **Werkzeug (scrypt)** – Para hashing seguro de contraseñas.
-- **Render** – Plataforma de despliegue del backend.
+### 🔐 Como administrador:
+- Registrar una nueva empresa.
+- Invitar empleados con correos del mismo dominio.
+- Crear y asignar tareas.
+- Visualizar tareas y usuarios asociados.
+
+### 👤 Como empleado:
+- Ver tareas asignadas.
+- Visualizar su panel de tareas y proyectos personales.
+
+---
+
+## 👥 Usuarios habilitados para pruebas
+
+### 🧑‍💼 Administradores
+- `admin@empresax.cl` - `hola123`
+- `admin@empresay.cl` - `hola123`
+
+### 👷 Empleados empresa X
+- `juan@empresax.cl` - `hola123`
+- `miguel@empresax.cl` - `hola123`
+- `martina@empresax.cl` - `hola123`
+
+### 👷 Empleados empresa Y
+- `valentina@empresay.cl` - `hola123`
+- `benjamin@empresay.cl` - `hola123`
+
+> ⚠️ **Todos los usuarios actualmente comparten la contraseña `hola123`.**
+
+Puedes usar estos usuarios o registrar una nueva empresa con un correo tipo:  
+`admin@tunombreempresa.cl`, de estar forma crear tus propios empleados y sus tareas como guste.
+
+---
+
