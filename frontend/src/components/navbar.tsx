@@ -111,7 +111,7 @@ const Navbar: React.FC = () => {
             exit={{ opacity: 0, y: -25 }}
             className="flex flex-col gap-3 md:hidden bg-white/95 shadow-lg backdrop-blur-xl rounded-b-2xl px-6 py-6 absolute left-0 top-[80px] w-full z-20"
           >
-            {links.map((l, i) =>
+            {links.map((l) =>
               (!l.auth || isLoggedIn) && (
                 <motion.li
                   key={l.to}

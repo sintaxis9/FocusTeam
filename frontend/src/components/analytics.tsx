@@ -1,5 +1,4 @@
 // src/components/analytics.tsx
-import React from 'react';
 import Laptop from '../assets/laptop.jpg';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';

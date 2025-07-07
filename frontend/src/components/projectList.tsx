@@ -1,6 +1,5 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiUser } from "react-icons/fi";
 
 type Employee = { id: string; name: string };
 type Project = {

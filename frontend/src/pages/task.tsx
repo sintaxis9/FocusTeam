@@ -4,7 +4,7 @@ import TaskList from "../components/taskList";
 import { getCompanyUsers, createTask, getTasksByUser, getTasksByCompany } from "../services/companyService";
 import { useAuth } from "../context/authContext";
 import type { CompanyUser } from "../types/user";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 type Employee = { id: string; name: string; rol: string };
 type Task = {
