@@ -1,29 +1,22 @@
-
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { useAuth } from "../../context/authContext";
 
 export const AccountToggle = () => {
   const { user } = useAuth();
-
-  // Obtén nombre desde el correo (antes del @)
   const name = user?.email.split("@")[0] || "Usuario";
 
   return (
-    <div className="border-b mb-4 mt-2 pb-4 border-stone-300">
-      <button className="flex p-0.5 hover:bg-stone-200 rounded transition-colors relative gap-2 w-full items-center">
-        <img
-          src="https://api.dicebear.com/9.x/notionists/svg"
-          alt="avatar"
-          className="size-8 rounded shrink-0 bg-violet-500 shadow"
-        />
-        <div className="text-start">
-          <span className="text-sm font-bold block">{name}</span>
-          <span className="text-xs block text-stone-500">{user?.email}</span>
-        </div>
-
-        <FiChevronDown className="absolute right-2 top-1/2 translate-y-[calc(-50%+4px)] text-xs" />
-        <FiChevronUp className="absolute right-2 top-1/2 translate-y-[calc(-50%-4px)] text-xs" />
-      </button>
+    <div className="flex items-center gap-3 px-1 pb-3">
+      <img
+        src="https://api.dicebear.com/9.x/notionists/svg"
+        alt="avatar"
+        className="size-11 rounded-full bg-gradient-to-tr from-violet-400 to-indigo-300 shadow"
+      />
+      <div className="flex-1 min-w-0">
+        <div className="text-base font-bold truncate text-stone-900">{name}</div>
+        <div className="text-xs text-stone-500 truncate">{user?.email}</div>
+      </div>
+      <FiChevronDown className="text-xl text-stone-400" />
     </div>
   );
 };

@@ -1,13 +1,14 @@
-
 import React from 'react';
 import Dashboard from '../components/dashboard/dashboard';
 
-
 const ControlPanel: React.FC = () => {
   return (
-    <main className="grid grid-cols-[220px_1fr] h-screen">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex">
+      {/* Sidebar futuro */}
       {/* <Sidebar /> */}
-      <Dashboard />
+      <section className="flex-1 flex flex-col">
+        <Dashboard />
+      </section>
     </main>
   );
 };

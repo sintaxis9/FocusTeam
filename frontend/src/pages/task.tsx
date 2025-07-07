@@ -4,6 +4,7 @@ import TaskList from "../components/taskList";
 import { getCompanyUsers, createTask, getTasksByUser, getTasksByCompany } from "../services/companyService";
 import { useAuth } from "../context/authContext";
 import type { CompanyUser } from "../types/user";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Employee = { id: string; name: string; rol: string };
 type Task = {
@@ -65,53 +66,31 @@ const Task: React.FC = () => {
     if (!employeesLoaded) return;
     if (!user) return;
 
+    const mapTasks = (data: any) => data.tareas.map((t: any) => ({
+      id: t._id,
+      title: t.titulo,
+      description: t.descripcion,
+      startDate: t.fecha_inicio,
+      endDate: t.fecha_final,
+      completed: t.estado === "completada",
+      employees: t.asignados || [],
+    }));
+
     if (isAdmin) {
-      // Admin: obtiene todas las tareas de la empresa por dominio
       getTasksByCompany(domain)
-        .then(data => {
-          setTasks(
-            data.tareas.map((t: any) => ({
-              id: t._id,
-              title: t.titulo,
-              description: t.descripcion,
-              startDate: t.fecha_inicio,
-              endDate: t.fecha_final,
-              completed: t.estado === "completada",
-              employees: t.asignados || [],
-            }))
-          );
-        })
-        .catch(error => {
-          alert(error.message || "No se pudieron cargar las tareas");
-        });
+        .then(data => setTasks(mapTasks(data)))
+        .catch(error => alert(error.message || "No se pudieron cargar las tareas"));
     } else {
-      // Empleado: solo sus tareas
       getTasksByUser(user.email)
-        .then(data => {
-          setTasks(
-            data.tareas.map((t: any) => ({
-              id: t._id,
-              title: t.titulo,
-              description: t.descripcion,
-              startDate: t.fecha_inicio,
-              endDate: t.fecha_final,
-              completed: t.estado === "completada",
-              employees: t.asignados || [],
-            }))
-          );
-        })
-        .catch(error => {
-          alert(error.message || "No se pudieron cargar las tareas");
-        });
+        .then(data => setTasks(mapTasks(data)))
+        .catch(error => alert(error.message || "No se pudieron cargar las tareas"));
     }
   }, [employeesLoaded, user, domain, isAdmin]);
 
   // Manejadores del formulario
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  ) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleEmployeesChange = (id: string, checked: boolean) => {
     setForm(prevForm => ({
@@ -147,67 +126,71 @@ const Task: React.FC = () => {
         endDate: "",
         employees: [],
       });
-      alert("Tarea creada correctamente");
-      // Vuelve a cargar las tareas después de crear una
+      // Recargar tareas:
       if (isAdmin) {
         getTasksByCompany(domain)
-          .then(data => {
-            setTasks(
-              data.tareas.map((t: any) => ({
-                id: t._id,
-                title: t.titulo,
-                description: t.descripcion,
-                startDate: t.fecha_inicio,
-                endDate: t.fecha_final,
-                completed: t.estado === "completada",
-                employees: t.asignados || [],
-              }))
-            );
-          });
+          .then(data => setTasks(data.tareas.map((t: any) => ({
+            id: t._id,
+            title: t.titulo,
+            description: t.descripcion,
+            startDate: t.fecha_inicio,
+            endDate: t.fecha_final,
+            completed: t.estado === "completada",
+            employees: t.asignados || [],
+          }))));
       } else {
         getTasksByUser(user.email)
-          .then(data => {
-            setTasks(
-              data.tareas.map((t: any) => ({
-                id: t._id,
-                title: t.titulo,
-                description: t.descripcion,
-                startDate: t.fecha_inicio,
-                endDate: t.fecha_final,
-                completed: t.estado === "completada",
-                employees: t.asignados || [],
-              }))
-            );
-          });
+          .then(data => setTasks(data.tareas.map((t: any) => ({
+            id: t._id,
+            title: t.titulo,
+            description: t.descripcion,
+            startDate: t.fecha_inicio,
+            endDate: t.fecha_final,
+            completed: t.estado === "completada",
+            employees: t.asignados || [],
+          }))));
       }
     } catch (error: any) {
       alert(error.message || "Error creando tarea");
     }
   };
 
-  // Filtrado de tareas: ahora no es necesario si el backend retorna lo correcto
   const visibleTasks = tasks;
 
   return (
-    <div className="max-w-lg mx-auto my-8 p-6 bg-white rounded-xl shadow">
-      <h2 className="text-2xl font-bold mb-4">Tareas</h2>
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="max-w-xl mx-auto my-10 p-6 pt-12 bg-white/90 rounded-3xl shadow-2xl backdrop-blur"
+    >
+      <h2 className="text-3xl font-extrabold mb-4 text-center bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">
+        Tareas
+      </h2>
       {isAdmin && (
-        <TaskForm
-          form={form}
-          employees={employees.filter(emp => emp.rol === "empleado")}
-          onChange={handleChange}
-          onEmployeesChange={handleEmployeesChange}
-          onSubmit={handleAddTask}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-6"
+        >
+          <TaskForm
+            form={form}
+            employees={employees.filter(emp => emp.rol === "empleado")}
+            onChange={handleChange}
+            onEmployeesChange={handleEmployeesChange}
+            onSubmit={handleAddTask}
+          />
+        </motion.div>
       )}
       <TaskList
         tasks={visibleTasks}
         employees={employees}
-        onToggle={() => {}} // Si tienes lógica de completado ponla aquí
+        onToggle={() => {}} // Aquí puedes poner la lógica para marcar como completada
         isAdmin={isAdmin}
         currentUserId={userId}
       />
-    </div>
+    </motion.div>
   );
 };
 

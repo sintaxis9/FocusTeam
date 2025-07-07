@@ -4,6 +4,7 @@ import ProjectList from "../components/projectList";
 import { getCompanyUsers } from "../services/companyService";
 import { useAuth } from "../context/authContext";
 import type { CompanyUser } from "../types/user";
+import { motion } from "framer-motion";
 
 type Project = {
   id: number;
@@ -44,7 +45,7 @@ const Project: React.FC = () => {
         setEmployees(
           data.users.map((u: CompanyUser) => ({
             id: u._id,
-            name: u.email, // O nombre real
+            name: u.email,
           }))
         );
       });
@@ -57,11 +58,7 @@ const Project: React.FC = () => {
   useEffect(() => {
     if (!domain) return;
     const storedProjects = localStorage.getItem(LOCAL_PROJECTS_KEY);
-    if (storedProjects) {
-      setProjects(JSON.parse(storedProjects));
-    } else {
-      setProjects([]);
-    }
+    setProjects(storedProjects ? JSON.parse(storedProjects) : []);
   }, [domain]);
 
   // 5. Guardar proyectos cuando cambian o cambia el dominio
@@ -103,21 +100,35 @@ const Project: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto my-8 p-6 bg-white rounded-xl shadow">
-      <h2 className="text-2xl font-bold mb-4">Proyectos</h2>
-      <ProjectForm
-        form={form}
-        employees={employees}
-        onChange={handleChange}
-        onEmployeesChange={handleEmployeesChange}
-        onSubmit={handleAddProject}
-      />
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="max-w-xl mx-auto my-10 p-6 pt-12 bg-white/90 rounded-3xl shadow-2xl backdrop-blur"
+    >
+      <h2 className="text-3xl font-extrabold mb-4 text-center bg-gradient-to-r from-yellow-500 to-yellow-700 bg-clip-text text-transparent">
+        Proyectos
+      </h2>
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mb-6"
+      >
+        <ProjectForm
+          form={form}
+          employees={employees}
+          onChange={handleChange}
+          onEmployeesChange={handleEmployeesChange}
+          onSubmit={handleAddProject}
+        />
+      </motion.div>
       {/* Listado de todos los proyectos */}
       <ProjectList
         projects={projects}
         employees={employees}
       />
-    </div>
+    </motion.div>
   );
 };
 
